@@ -35,3 +35,7 @@ PS3 = {
     'shikaku': 15
 }
 
+VERTICAL_THRETHOLD = {
+    'MAX': 200,
+    'MIN': 0
+}
