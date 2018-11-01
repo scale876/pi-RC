@@ -9,7 +9,7 @@ MACHINE_STATE = {
 MODE = {
     'FREE': 0,
     'STORE': 1,
-    'PICK': 2
+    'CARRY_OUT': 2
 }
 
 ARM_POSITON = {
