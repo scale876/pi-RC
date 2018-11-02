@@ -18,21 +18,20 @@ class ServoMotor():
     def open(self):
         if self.state == ARM_STATE['OPEN']:
             return
-
         self.servo.ChangeDutyCycle(2.5)
-        time.sleep(0.5)
         self.state = ARM_STATE['OPEN']
+        return
 
     def close(self):
         if self.state == ARM_STATE['CLOSE']:
             return
-
         self.servo.ChangeDutyCycle(10)
-        time.sleep(0.5)
         self.state = ARM_STATE['CLOSE']
+        return
 
     def stop(self):
         self.servo.stop()
+        return
 
 if __name__ == '__main__':
     servo = ServoMotor(18)

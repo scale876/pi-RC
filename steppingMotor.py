@@ -27,7 +27,12 @@ class SteppingMotor():
         #SET MAX SPEED
         self.write(0x07)
         self.write(0x00)
-        self.write(0x27)
+        self.write(0x23)
+
+        #SET MIN SPEED
+        self.write(0x08)
+        self.write(0x00)
+        self.write(0x00)
 
         #SET KVAL_HOLD
         self.write(0x09)
@@ -35,15 +40,15 @@ class SteppingMotor():
 
         #SET KVAL_RUN
         self.write(0x0A)
-        self.write(0x80)
+        self.write(0x40)
 
         #SET KVAL_ACC
         self.write(0x0B)
-        self.write(0x80)
+        self.write(0x10)
 
         #SET KVAL_DEC
         self.write(0x0C)
-        self.write(0xFF)
+        self.write(0x10)
 
         #SET OCD_TH
         self.write(0x13)
@@ -85,6 +90,7 @@ class SteppingMotor():
 
         while GPIO.input(self.busy) == 0:
             pass
+        return
 
     def move_abs(self, pos):
         dir = 0x60
@@ -98,14 +104,17 @@ class SteppingMotor():
         
         while GPIO.input(self.busy) == 0:
             pass
+        return
 
     def soft_stop(self):
         dir = 0xB0
         self.write(dir)
+        return
 
     def softhiz(self):
         dir = 0xA8
         self.write(dir)
+        return
 
 if __name__ == '__main__':
     print('*** start spi test program ***')

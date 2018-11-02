@@ -21,14 +21,17 @@ class DcMotor:
     def foward(self):
         GPIO.output(self.pin_f, GPIO.HIGH)
         GPIO.output(self.pin_r, GPIO.LOW)
+        return
     
     def back(self):
         GPIO.output(self.pin_f, GPIO.LOW)
         GPIO.output(self.pin_r, GPIO.HIGH)
-    
+        return   
+
     def stop(self):
         GPIO.output(self.pin_f, GPIO.LOW)
         GPIO.output(self.pin_r, GPIO.LOW)
+        return
 
 if __name__ == '__main__':
     dc = DcMotor(17, 27)

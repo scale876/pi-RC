@@ -28,13 +28,6 @@ def pygame_init():
         time.sleep(1)
         pygame_init()
 
-def action_servo(servo):
-    servo.close()
-    servo.open()
-
-def move_stepping(stepping, step):
-    stepping.move(step)
-
 def do_store(arm, vertical, horizontal):
     global g_machine_state
     global g_target_num
@@ -42,17 +35,25 @@ def do_store(arm, vertical, horizontal):
     global g_motor_position
 
     if arm.state == servoMotor.ARM_STATE['OPEN']:
+        print('please close arm.')
         return
 
     g_mode = rcTypes.MODE['STORE']
 
+    time.sleep(0.2)
+    
     vertical.move_abs(200)
+    time.sleep(0.1)
     horizontal.move_abs(400)
+    time.sleep(0.1)
     vertical.move_abs(0)
+    time.sleep(0.1)
     arm.open()
     arm.close()
     vertical.move_abs(200)
+    time.sleep(0.1)
     horizontal.move_abs(0)
+    time.sleep(0.1)
     arm.open()
 
     g_target_num += 1
@@ -66,17 +67,24 @@ def do_carryout(arm, vertical, horizontal):
     global g_motor_position
 
     if arm.state ==servoMotor.ARM_STATE['CLOSE']:
+        print('please open arm.')
         return
-
     g_mode = rcTypes.MODE['CARRY_OUT']
+    
+    time.sleep(0.2)
     arm.close()
     vertical.move_abs(200)
+    time.sleep(0.1)
     horizontal.move_abs(400)
+    time.sleep(0.1)
     arm.open()
     vertical.move_abs(0)
+    time.sleep(0.1)
     arm.close()
     vertical.move_abs(200)
+    time.sleep(0.1)
     horizontal.move_abs(0)
+    time.sleep(0.1)
 
     g_target_num -= 1
     g_motor_position = rcTypes.VERTICAL_THRETHOLD['MAX']
@@ -90,10 +98,10 @@ def move_dc_motor(dc, vaxis):
     else:
         dc.stop()
 
-
 def controller_main():
     print('success')
     global g_motor_position
+    ps3 = rcTypes.PS3
     pygame.init()
     v_motor = steppingMotor.SteppingMotor(0, 5)
     h_motor = steppingMotor.SteppingMotor(1, 6)
@@ -117,51 +125,55 @@ def controller_main():
 
         if up_button:
             print 'up %s' % up_button
-            if 4 in up_button:
-                if 4 in hold_button:
-                    hold_button.remove(4)
-            elif 5 in up_button:
-                if 4 in hold_button:
-                    hold_button.remove(5)
+            if ps3['up'] in up_button and ps3['up'] in hold_button:
+                    hold_button.remove(ps3['up'])
+            if ps3['down'] in up_button and ps3['down'] in hold_button:
+                    hold_button.remove(ps3['down'])
 
         if g_mode != rcTypes.MODE['FREE']:
+            hold_buttonb = []
             continue
 
         if down_button:
             print 'down %s' % down_button
-            if 0 in down_button:
-                threading.Thread(target=action_servo, args=([arm_motor])).start()
-            elif 1 in down_button:
-                threading.Thread(target=move_stepping, args=([v_motor, 400])).start()
-                #v_motor.move(400)
-            elif 2 in down_button:
-                threading.Thread(target=move_stepping, args=([h_motor, 200])).start()
-                #h_motor.move(200)
-            elif 3 in down_button:
-                threading.Thread(target=do_store, args=([arm_motor, v_motor, h_motor])).start()
-            elif 4 in down_button:
-                if not 4 in hold_button:
-                    print 'append'
-                    hold_button.append(4)
-            elif 5 in down_button:
-                if not 5 in hold_button:
-                    print 'append'
-                    hold_button.append(5)
+            if ps3['sankaku'] in down_button:
+                make_thread(target=do_store, data=[arm_motor, v_motor, h_motor])
+            elif ps3['shikaku'] in down_button:
+                make_thread(target=do_carryout, data=[arm_motor, v_motor, h_motor])
+            elif ps3['maru'] in down_button:
+                make_thread(target=arm_motor.open)
+            elif ps3['batsu'] in down_button:
+                make_thread(target=arm_motor.close)
+            elif ps3['up'] in down_button:
+                if not ps3['up'] in hold_button:
+                    hold_button.append(ps3['up'])
+            elif ps3['down'] in down_button:
+                if not ps3['down'] in hold_button:
+                    hold_button.append(ps3['down'])
 
         if hold_button:
             print 'hold %s' % hold_button
-            if 4 in hold_button:
+            if ps3['up'] in hold_button:
                 g_motor_position += 5
                 if g_motor_position > rcTypes.VERTICAL_THRETHOLD['MAX']:
                     g_motor_position = rcTypes.VERTICAL_THRETHOLD['MAX']
-                v_motor.move_abs(g_motor_position)
-            elif 5 in hold_button:
+                make_thread(target=v_motor.move_abs, data=[g_motor_position])
+            elif ps3['down'] in hold_button:
                 g_motor_position -= 5
                 if g_motor_position < rcTypes.VERTICAL_THRETHOLD['MIN']:
                     g_motor_position = rcTypes.VERTICAL_THRETHOLD['MIN']
-                v_motor.move_abs(g_motor_position)
+                make_thread(target=v_motor.move_abs, data=[g_motor_position])
 
-        pygame.time.wait(10)
+        pygame.time.wait(100)
+
+# FIXME スレッドの最大値を制御する方法がわからなかったのでゴリ押し。いつか直す。
+def make_thread(target, data=None):
+    if threading.active_count() > 1:
+        return
+    if isinstance(data, list):
+        threading.Thread(target=target, args=(data)).start()
+    else:
+        threading.Thread(target=target).start()
 
 if __name__ == '__main__':
     pygame_init()

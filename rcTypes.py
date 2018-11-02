@@ -19,20 +19,20 @@ ARM_POSITON = {
 }
 
 PS3 = {
-    'select': 0,
-    'start': 3,
-    'up': 4,
-    'right': 5,
-    'left': 6,
-    'right': 7,
-    'l2': 8,
-    'r2': 9,
-    'l1': 10,
-    'r1': 11,
-    'sankaku': 12,
-    'maru': 13,
-    'batsu': 14,
-    'shikaku': 15
+    'select': 8,
+    'start': 9,
+    'up': 13,
+    'right': 16,
+    'down': 14,
+    'left': 15,
+    'l2': 6,
+    'r2': 4,
+    'l1': 5,
+    'r1': 7,
+    'sankaku': 2,
+    'maru': 1,
+    'batsu': 0,
+    'shikaku': 3
 }
 
 VERTICAL_THRETHOLD = {
